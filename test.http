@@ -1,0 +1,37 @@
+###
+GET https://localhost:3000/api HTTP/1.1
+
+###
+GET https://localhost:3000/api/fruits HTTP/1.1
+
+###
+POST https://localhost:3000/api/fruits HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaGFubiIsInVzZXJpZCI6IjY1MjZlMGI0MzIzNjQ2YjljNWQwOWY2ZiIsImlhdCI6MTY5NzA0NjcxOSwiZXhwIjoxNjk3MDUwMzE5fQ.0htZBuQhFFYNNzeDbdX9eCDWC5gnDNPkcLZLNpDZxXg
+
+{
+    "id" : "1",
+    "name" : "Apple"
+}
+
+###
+DELETE https://localhost:3000/api/fruits/6526e118323646b9c5d09f77 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaGFubiIsInVzZXJpZCI6IjY1MjZlMGI0MzIzNjQ2YjljNWQwOWY2ZiIsImlhdCI6MTY5NzA0NjcxOSwiZXhwIjoxNjk3MDUwMzE5fQ.0htZBuQhFFYNNzeDbdX9eCDWC5gnDNPkcLZLNpDZxXg
+
+###
+POST https://localhost:3000/api/users/signup HTTP/1.1
+Content-Type: application/json
+
+{
+    "username" : "johann",
+    "password" : "st10081821"
+}
+
+###
+POST https://localhost:3000/api/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "johann",
+    "password": "st10081821"
+}
