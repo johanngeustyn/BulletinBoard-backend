@@ -5,6 +5,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 module.exports = {
     dotenv,
@@ -13,5 +14,6 @@ module.exports = {
     express,
     mongoose,
     bcrypt,
-    jwt
+    jwt,
+    crypto
 }

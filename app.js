@@ -1,6 +1,6 @@
 const library = require('./config/library');
 const files = require('./config/files');
-const fruitRoutes = require("./routes/fruit");
+const noticeRoutes = require("./routes/notice");
 const userRoutes = require("./routes/user");
 
 const app = library.express();
@@ -32,7 +32,7 @@ app.get(API_ENDPOINT + '/', (req, res) => {
     res.send('Hello World');
 });
 
-app.use(API_ENDPOINT + '/fruits', fruitRoutes);
+app.use(API_ENDPOINT + '/notices', noticeRoutes);
 app.use(API_ENDPOINT + '/users', userRoutes);
 
 module.exports = app;

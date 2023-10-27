@@ -1,12 +1,17 @@
 const library = require('../config/library');
 const router = library.express.Router();
+const role = require('../auth/check-role');
 const User = require('../models/user');
 
-router.post('/signup', (req, res) => {
+router.post('/signup', role("admin"), (req, res) => {
     library.bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
                 username: req.body.username,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                role: req.body.role,
+                department: req.body.department,
                 password: hash
             });
             return user.save();
@@ -29,11 +34,12 @@ router.post('/login', (req, res) => {
                 return res.status(401).json({ message: 'Autentication Failure' });
             }
 
-            const token = library.jwt.sign(
-                { username: user.username, userid: user._id },
-                'secret_this_should_be_longer_than_it_is',
-                { expiresIn:'1h' }
-            );
+            const token = library.jwt.sign({
+                id: user._id,
+                username: user.username,
+                role: user.role,
+                department: user.department
+            }, process.env.JWT_SECRET, { expiresIn:'24h' });
 
             res.status(200).json({ token: token });
         }).catch(err => {
