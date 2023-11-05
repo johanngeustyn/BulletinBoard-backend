@@ -82,11 +82,6 @@ const noticeSchema = library.mongoose.Schema({
         type: String
     }],
 
-    // Attachments (Can be file URLs or references to another collection storing file data)
-    attachments: [{
-        type: String
-    }],
-
     // Comments or Discussions related to the Notice
     comments: [{
         type: library.mongoose.Schema.Types.ObjectId,

@@ -8,10 +8,31 @@ const router = library.express.Router();
 // Get all notices (for admin)
 router.get('/all', checkAuth, role("admin"), (req, res) => {
     Notice.find()
+        .populate('author')
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'author',
+                model: 'User'
+            }
+        })
         .then(notices => {
+            const formattedNotices = notices.map(notice => {
+                return {
+                    ...notice.toObject(),
+                    author: `${notice.author.firstName} ${notice.author.lastName}`,
+                    createdAt: library.momentJs(notice.createdAt).format('MMMM Do YYYY, h:mm'),
+                    comments: notice.comments.map(comment => ({
+                        ...comment.toObject(),
+                        author: req.user.id == comment.author._id ? 'You' : `${comment.author.firstName} ${comment.author.lastName}`,
+                        createdAt: library.momentJs(comment.createdAt).format('MMMM Do YYYY, h:mm')
+                    }))
+                };
+            });
+
             res.json({
                 message: 'Notices found',
-                notices: notices
+                notices: formattedNotices
             });
         }).catch(err => {
             console.error(err);
@@ -21,10 +42,31 @@ router.get('/all', checkAuth, role("admin"), (req, res) => {
 // Get user department's notices
 router.get('', checkAuth, (req, res) => {
     Notice.find({ departments: req.user.department })
+        .populate('author')
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'author',
+                model: 'User'
+            }
+        })
         .then(notices => {
+            const formattedNotices = notices.map(notice => {
+                return {
+                    ...notice.toObject(),
+                    author: `${notice.author.firstName} ${notice.author.lastName}`,
+                    createdAt: library.momentJs(notice.createdAt).format('MMMM Do YYYY, h:mm'),
+                    comments: notice.comments.map(comment => ({
+                        ...comment.toObject(),
+                        author: req.user.id == comment.author._id ? 'You' : `${comment.author.firstName} ${comment.author.lastName}`,
+                        createdAt: library.momentJs(comment.createdAt).format('MMMM Do YYYY, h:mm')
+                    }))
+                };
+            });
+
             res.json({
                 message: 'Notices found',
-                notices: notices
+                notices: formattedNotices
             });
         })
         .catch(err => {
@@ -33,6 +75,43 @@ router.get('', checkAuth, (req, res) => {
         });
 });
 
+// Get a single notice
+router.get('/:id', checkAuth, (req, res) => {
+    Notice.findOne({ _id: req.params.id })
+        .populate('author')
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'author',
+                model: 'User'
+            }
+        })
+        .then(notice => {
+            if (notice) {
+                const formattedNotice = {
+                    ...notice.toObject(),
+                    author: `${notice.author.firstName} ${notice.author.lastName}`,
+                    createdAt: library.momentJs(notice.createdAt).format('MMMM Do YYYY, h:mm'),
+                    comments: notice.comments.map(comment => ({
+                        ...comment.toObject(),
+                        author: req.user.id == comment.author._id ? 'You' : `${comment.author.firstName} ${comment.author.lastName}`,
+                        createdAt: library.momentJs(comment.createdAt).format('MMMM Do YYYY, h:mm')
+                    }))
+                };
+
+                res.json({
+                    message: 'Notice found',
+                    notice: formattedNotice
+                });
+            } else {
+                res.status(404).json({ message: 'Notice not found' });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ message: 'An error occurred' });
+        });
+});
 
 router.post('', checkAuth, role("admin"), (req, res) => {
     const notice = new Notice({
@@ -91,7 +170,6 @@ router.put('/:id', checkAuth, role("admin"), (req, res) => {
         });
 });
 
-
 router.delete('/:id', checkAuth, role("admin"), (req, res) => {
     Notice.deleteOne({ _id: req.params.id })
         .then(() => {
@@ -99,7 +177,7 @@ router.delete('/:id', checkAuth, role("admin"), (req, res) => {
         }).catch(err => {
             console.error(err);
         });
-})
+});
 
 // Comments
 router.post('/:id/comments', checkAuth, (req, res) => {
