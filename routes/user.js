@@ -3,6 +3,8 @@ const router = library.express.Router();
 const role = require('../auth/check-role');
 const checkAuth = require('../auth/check-auth');
 const User = require('../models/user');
+const Comment = require('../models/comment');
+const Notice = require('../models/notice');
 
 // Setup store for express-brute
 const store = new library.expressBrute.MemoryStore();
@@ -80,6 +82,21 @@ router.get('', checkAuth, role("admin"), (req, res) => {
             });
         }).catch(err => {
             console.error(err);
+            res.status(500).json({ message: 'Failed finding users' });
+        });
+});
+
+// Get all admin users
+router.get('/admin', checkAuth, role("admin"), (req, res) => {
+    User.find({ role: 'admin' })
+        .then(users => {
+            res.json({
+                message: 'Admin users found',
+                users: users
+            });
+        }).catch(err => {
+            console.error(err);
+            res.status(500).json({ message: 'Failed finding admin users' });
         });
 });
 
@@ -134,14 +151,33 @@ router.put('/:id', checkAuth, role("admin"), (req, res) => {
         });
 });
 
+// Update user notices
+router.put('/:id/notices', checkAuth, role("admin"), (req, res) => {
+    console.log(req.body);
+    Notice.updateMany({ author: req.params.id }, { $set: { author: req.body.id } })
+        .then(result => {
+            if (result.nModified === 0) {
+                console.log('No notices were updated. Check if the author ID is correct.');
+                return res.status(404).json({ message: 'No notices found for the user.' });
+            }
+            res.status(200).json({ message: 'User notices updated' });
+        })
+        .catch(err => {
+            console.error('Update error:', err);
+            res.status(500).json({ message: 'An error occurred', error: err });
+        });
+});
+
 // Delete user
 router.delete('/:id', checkAuth, role("admin"), (req, res) => {
     User.deleteOne({ _id: req.params.id })
         .then(() => {
+            return Comment.deleteMany({ author: req.params.id });
+        }).then(() => {
             res.status(200).json({ message: 'User Deleted' });
         }).catch(err => {
             console.error(err);
         });
-})
+});
 
 module.exports = router

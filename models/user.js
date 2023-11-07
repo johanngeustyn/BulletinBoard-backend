@@ -41,4 +41,10 @@ const userSchema = library.mongoose.Schema({
     password: { type: String, required: true }
 });
 
+userSchema.pre('remove', function(next) {
+    Comment.remove({ user: this._id }).exec();
+    next();
+});
+  
+
 module.exports = library.mongoose.model('User', userSchema);
